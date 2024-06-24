@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, NotFoundException } from '@nestjs/common';
+import { Controller, Query, Post, Get, Patch, Delete, Param, Body, NotFoundException } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
 import { Post as PostEntity } from './post.entity';
@@ -13,27 +13,47 @@ export class PostsController {
     return this.postsService.createPost(createPostDto);
   }
   // viewing all posts of a certain user
-  @Get('user/:userId')
-  findPostsByUserId(@Param('userId') userId: string): PostEntity[] {
+  @Get('userId')
+  findPostsByUserId(@Query('q') userId: string): PostEntity[] {
     return this.postsService.findPostsByUserId(userId);
   }
   //edit a post
-  @Patch(':id')
-  updatePost(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto): PostEntity {
-    const updatedPost = this.postsService.updatePost(id, updatePostDto);
+  @Patch(':postId')
+  updatePost(@Param('postId') id: string, @Body() updatedPostDto: UpdatePostDto): PostEntity {
+    const updatedPost = this.postsService.updatePost(id, updatedPostDto);
     if (!updatedPost) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
+      throw new NotFoundException(`Post not found`);
     }
     return updatedPost;
   }
-
-  @Delete(':id')
-  deletePost(@Param('id') id: string): { message: string } {
+  //delete a post
+  @Delete(':postId')
+  deletePost(@Param('postId') id: string): { message: string } {
     const result = this.postsService.deletePost(id);
     if (!result) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
+      throw new NotFoundException(`Post not found`);
     }
     return { message: 'Post deleted successfully' };
   }
-  
+  // all posts
+  @Get()
+  findAllPosts() {
+    return this.postsService.findAllPosts();
+  }
+  // like a post
+  @Patch('like/:postId/:userId')
+  likePost(
+    @Param('postId') postId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.postsService.likePost(postId, userId);
+  }
+  //removing the like
+  @Patch('unlike/:postId/:userId')
+  unlikePost(
+    @Param('postId') postId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.postsService.unlikePost(postId, userId);
+  }
 }

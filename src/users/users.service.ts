@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './update-user-profile.dto';
 import { User } from './user.entity';
 
@@ -33,7 +33,7 @@ export class UsersService {
     updateUserProfile(id: string, updateUserProfileDto: UpdateUserDto): string {
         const user = this.users.find(user => user.id === id);
         if (!user) {
-        return `User with ID ${id} not found`;
+            throw new NotFoundException(`User not found`);
         }
         if (updateUserProfileDto.bio) {
         user.bio = updateUserProfileDto.bio;
@@ -41,6 +41,6 @@ export class UsersService {
         if (updateUserProfileDto.profilePicture) {
         user.profilePicture = updateUserProfileDto.profilePicture;
         }
-        return `User with ID ${id} has been updated`;
+        return `User information has been updated`;
     }
 }
